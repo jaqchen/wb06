@@ -121,13 +121,23 @@ fn main() {
 		std::process::exit(1);
 	}
 
+	// 码表名称：
+	let dbfile: &str = "新世纪五笔词库";
+	// 确认码表文件的路径：
+	let mut dbpath = if std::fs::exists(dbfile).unwrap_or(false) {
+		std::path::PathBuf::with_capacity(256)
+	} else {
+		std::env::current_exe().unwrap()
+	};
+	dbpath.set_file_name(dbfile);
+
 	// 打开2008版五笔词库文件：
 	let wdb = match std::fs::OpenOptions::new()
 		.read(true)
 		.write(false)
 		.create(false)
 		.create_new(false)
-		.open("./新世纪五笔词库") {
+		.open(&dbpath) {
 		Ok(mut file) => {
 			// 跳过前三字节：0xef 0xbb 0xbf
 			let mut bcs = [0u8; 3];
@@ -135,7 +145,7 @@ fn main() {
 			file
 		},
 		Err(err) => {
-			eprintln!("打开文件《新世纪五笔词库》失败: {:?}", err);
+			eprintln!("打开文件 《新世纪五笔词库》失败: {:?}", err);
 			std::process::exit(2);
 		},
 	};
@@ -165,14 +175,14 @@ fn main() {
 		let cline: &str = wline.trim();
 		let words: Vec<&str> = cline.split_whitespace().collect();
 		if words.len() <= 1 {
-			eprintln!("错误！分割行失败，忽略行：{}", cline);
+			eprintln!("错误！分割行失败，忽略行： {}", cline);
 			continue;
 		}
 
 		if Wubima::validate_bm(words[0]) {
 			Wubima::new_bm(&mut wordmap, words[0], &words[1..]);
 		} else {
-			eprintln!("错误！无效的五笔词组编码：{}", cline);
+			eprintln!("错误！无效的五笔词组编码： {}", cline);
 			continue;
 		}
 	}
@@ -186,7 +196,7 @@ fn main() {
 		if let Some(wbm) = wordmap.get(word) {
 			wbm.dump();
 		} else {
-			eprintln!("失败！未找到词组的五笔编码：{}", word);
+			eprintln!("失败！未找到词组的五笔编码： {}", word);
 		}
 	});
 }
