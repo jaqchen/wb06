@@ -183,7 +183,6 @@ fn main() {
 			Wubima::new_bm(&mut wordmap, words[0], &words[1..]);
 		} else {
 			eprintln!("错误！无效的五笔词组编码： {}", cline);
-			continue;
 		}
 	}
 
