@@ -25,7 +25,7 @@ impl Wubima {
 	}
 
 	fn dump(&self) {
-		println!("词组的五笔编码：  {} =>", self.word);
+		println!("五笔编码：  {} =>", self.word);
 		if self.bianma_1[0] != 0 {
 			println!("\t{}", char::from_u32(self.bianma_1[0] as u32).unwrap());
 		}
