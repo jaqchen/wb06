@@ -214,6 +214,6 @@ fn main() {
 		}
 	});
 
-	let _ = wbfile.write_all("};\n".as_bytes());
-	let _ = wbfile.sync_all();
+	wbfile.write_all("};\n".as_bytes()).unwrap();
+	wbfile.sync_all().unwrap();
 }
