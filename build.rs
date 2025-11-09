@@ -3,7 +3,7 @@
 // 2025/11/08
 
 use std::collections::HashMap;
-use std::io::{Read, BufRead, BufReader};
+use std::io::{Read, Write, BufRead, BufReader};
 
 struct Wubima {
 	word:               String,
@@ -24,20 +24,14 @@ impl Wubima {
 		}
 	}
 
-	fn dump(&self) {
-		println!("五笔编码：  {} =>", self.word);
-		if self.bianma_1[0] != 0 {
-			println!("\t{}", char::from_u32(self.bianma_1[0] as u32).unwrap());
-		}
-		if self.bianma_2[0] != 0 {
-			println!("\t{}", std::str::from_utf8(&self.bianma_2).unwrap());
-		}
-		if self.bianma_3[0] != 0 {
-			println!("\t{}", std::str::from_utf8(&self.bianma_3).unwrap());
-		}
-		if self.bianma_4[0] != 0 {
-			println!("\t{}", std::str::from_utf8(&self.bianma_4).unwrap());
-		}
+	fn dump(&self, file: &mut std::fs::File) -> std::io::Result<usize> {
+		let mut res = file.write("Wubima {\n".as_bytes())?;
+		write!(file, "\t\tbianma_1: [{}u8, ],\n", self.bianma_1[0])?;
+		write!(file, "\t\tbianma_2: [{}u8, {}u8, ],\n", self.bianma_2[0], self.bianma_2[1])?;
+		write!(file, "\t\tbianma_3: [{}u8, {}u8, {}u8, ],\n", self.bianma_3[0], self.bianma_3[1], self.bianma_3[2])?;
+		write!(file, "\t\tbianma_4: [{}u8, {}u8, {}u8, {}u8, ],\n", self.bianma_4[0], self.bianma_4[1], self.bianma_4[2], self.bianma_4[3])?;
+		res += file.write("\t},\n".as_bytes())?;
+		Ok(res)
 	}
 
 	fn update_bm(&mut self, bm: &str) -> bool {
@@ -114,22 +108,22 @@ impl Wubima {
 
 
 fn main() {
-	// 从命令行收集需要查询的词组:
-	let words: Vec<String> = std::env::args().skip(1).collect();
-	if words.is_empty() {
-		eprintln!("错误！您没有在命令行上指定您希望查词的词组。");
-		std::process::exit(1);
-	}
+	// 生成五笔码表代码文件的两个依赖：
+	println!("cargo:rerun-if-changed=build.rs");
+	println!("cargo:rerun-if-changed=新世纪五笔词库");
 
-	// 码表名称：
-	let dbfile: &str = "新世纪五笔词库";
-	// 确认码表文件的路径：
-	let mut dbpath = if std::fs::exists(dbfile).unwrap_or(false) {
-		std::path::PathBuf::with_capacity(256)
-	} else {
-		std::env::current_exe().unwrap()
+	// 获得编译输出文件夹：
+	let outdir: String = match std::env::var("OUT_DIR") {
+		Ok(dir) => dir,
+		Err(err) => {
+			eprintln!("错误！环境变量未定义：OUT_DIR => {:?}", err);
+			std::process::exit(1);
+		},
 	};
-	dbpath.set_file_name(dbfile);
+
+	// 码表文件的路径为工程根目录：
+	let mut dbpath = std::env::current_dir().unwrap();
+	dbpath.push("新世纪五笔词库");
 
 	// 打开2008版五笔词库文件：
 	let wdb = match std::fs::OpenOptions::new()
@@ -152,7 +146,6 @@ fn main() {
 
 	// 以行的方式读取五笔词库：
 	let mut wdb = BufReader::new(wdb);
-	// TODO: 使用编译时生成的查询表，compile-time lookup table
 	// 创建简单的哈稀表，以词组为键值，Wubima为键值：
 	let mut wordmap: HashMap<String, Wubima> = HashMap::new();
 
@@ -190,12 +183,37 @@ fn main() {
 	drop(wdb);
 
 	println!("共处理 {} 个词组。", wordmap.len());
-	words.iter().for_each(|word| {
+
+	// 创建码表代码文件，wubi2008_map.rs
+	let mut wbfile = std::fs::OpenOptions::new()
+		.read(false)
+		.write(true)
+		.create(true)
+		.truncate(true)
+		.open(std::path::Path::new(&outdir).join("wubi2008_map.rs"))
+		.unwrap();
+
+	// 写入五笔码表的定义：
+	let res = wbfile.write_all("static WUBIMA_TABLE: phf::Map<&'static str, Wubima> = phf_map! {\n".as_bytes());
+	if let Err(err) = res {
+		eprintln!("错误！写入 phf 预定义表失败：{:?}", err);
+		std::process::exit(3);
+	}
+
+	wordmap.iter().for_each(|(word, wbm)| {
 		let word: &str = word.as_str();
-		if let Some(wbm) = wordmap.get(word) {
-			wbm.dump();
-		} else {
-			eprintln!("失败！未找到词组的五笔编码： {}", word);
+		let define = format!("\t\"{}\" => ", word);
+		let mut res = wbfile.write(define.as_bytes());
+		if res.is_ok() {
+			res = wbm.dump(&mut wbfile);
+		}
+
+		if let Err(err) = res {
+			eprintln!("错误！写入五笔码表文件失败： {:?}", err);
+			std::process::exit(4);
 		}
 	});
+
+	let _ = wbfile.write_all("};\n".as_bytes());
+	let _ = wbfile.sync_all();
 }
