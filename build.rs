@@ -17,10 +17,10 @@ impl Wubima {
 	fn new(w: &str) -> Self {
 		Self {
 			word:          w.to_string(),
-			bm1:      [0u8, ],
-			bm2:      [0u8, 0u8, ],
-			bm3:      [0u8, 0u8, 0u8, ],
-			bm4:      [0u8, 0u8, 0u8, 0u8, ],
+			bm1:           [0u8, ],
+			bm2:           [0u8, 0u8, ],
+			bm3:           [0u8, 0u8, 0u8, ],
+			bm4:           [0u8, 0u8, 0u8, 0u8, ],
 		}
 	}
 
@@ -36,7 +36,7 @@ impl Wubima {
 
 	fn update_bm(&mut self, bm: &str) -> bool {
 		let bmc: &[u8] = bm.as_bytes();
-		match bm.len() {
+		match bmc.len() {
 			1 => {
 				if self.bm1[0] != 0 {
 					eprintln!("警告：词组已存在一级编码：{} => {}",
@@ -105,7 +105,6 @@ impl Wubima {
 		});
 	}
 }
-
 
 fn main() {
 	// 生成五笔码表代码文件的两个依赖：
