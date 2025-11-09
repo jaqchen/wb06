@@ -5,26 +5,26 @@
 use phf::phf_map;
 
 struct Wubima {
-	bianma_1:           [u8; 1],
-	bianma_2:           [u8; 2],
-	bianma_3:           [u8; 3],
-	bianma_4:           [u8; 4],
+	bm1:                [u8; 1],
+	bm2:                [u8; 2],
+	bm3:                [u8; 3],
+	bm4:                [u8; 4],
 }
 
 impl Wubima {
 	fn dump(&self, word: &str) {
 		println!("五笔编码：  {} =>", word);
-		if self.bianma_1[0] != 0 {
-			println!("\t{}", char::from_u32(self.bianma_1[0] as u32).unwrap());
+		if self.bm1[0] != 0 {
+			println!("\t{}", char::from_u32(self.bm1[0] as u32).unwrap());
 		}
-		if self.bianma_2[0] != 0 {
-			println!("\t{}", std::str::from_utf8(&self.bianma_2).unwrap());
+		if self.bm2[0] != 0 {
+			println!("\t{}", std::str::from_utf8(&self.bm2).unwrap());
 		}
-		if self.bianma_3[0] != 0 {
-			println!("\t{}", std::str::from_utf8(&self.bianma_3).unwrap());
+		if self.bm3[0] != 0 {
+			println!("\t{}", std::str::from_utf8(&self.bm3).unwrap());
 		}
-		if self.bianma_4[0] != 0 {
-			println!("\t{}", std::str::from_utf8(&self.bianma_4).unwrap());
+		if self.bm4[0] != 0 {
+			println!("\t{}", std::str::from_utf8(&self.bm4).unwrap());
 		}
 	}
 }

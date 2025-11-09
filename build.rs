@@ -7,29 +7,29 @@ use std::io::{Read, Write, BufRead, BufReader};
 
 struct Wubima {
 	word:               String,
-	bianma_1:           [u8; 1],
-	bianma_2:           [u8; 2],
-	bianma_3:           [u8; 3],
-	bianma_4:           [u8; 4],
+	bm1:                [u8; 1],
+	bm2:                [u8; 2],
+	bm3:                [u8; 3],
+	bm4:                [u8; 4],
 }
 
 impl Wubima {
 	fn new(w: &str) -> Self {
 		Self {
 			word:          w.to_string(),
-			bianma_1:      [0u8, ],
-			bianma_2:      [0u8, 0u8, ],
-			bianma_3:      [0u8, 0u8, 0u8, ],
-			bianma_4:      [0u8, 0u8, 0u8, 0u8, ],
+			bm1:      [0u8, ],
+			bm2:      [0u8, 0u8, ],
+			bm3:      [0u8, 0u8, 0u8, ],
+			bm4:      [0u8, 0u8, 0u8, 0u8, ],
 		}
 	}
 
 	fn dump(&self, file: &mut std::fs::File) -> std::io::Result<usize> {
 		let mut res = file.write("Wubima {\n".as_bytes())?;
-		write!(file, "\t\tbianma_1: [{}u8, ],\n", self.bianma_1[0])?;
-		write!(file, "\t\tbianma_2: [{}u8, {}u8, ],\n", self.bianma_2[0], self.bianma_2[1])?;
-		write!(file, "\t\tbianma_3: [{}u8, {}u8, {}u8, ],\n", self.bianma_3[0], self.bianma_3[1], self.bianma_3[2])?;
-		write!(file, "\t\tbianma_4: [{}u8, {}u8, {}u8, {}u8, ],\n", self.bianma_4[0], self.bianma_4[1], self.bianma_4[2], self.bianma_4[3])?;
+		write!(file, "\t\tbm1: [{}, ],\n", self.bm1[0])?;
+		write!(file, "\t\tbm2: [{}, {}, ],\n", self.bm2[0], self.bm2[1])?;
+		write!(file, "\t\tbm3: [{}, {}, {}, ],\n", self.bm3[0], self.bm3[1], self.bm3[2])?;
+		write!(file, "\t\tbm4: [{}, {}, {}, {}, ],\n", self.bm4[0], self.bm4[1], self.bm4[2], self.bm4[3])?;
 		res += file.write("\t},\n".as_bytes())?;
 		Ok(res)
 	}
@@ -38,39 +38,39 @@ impl Wubima {
 		let bmc: &[u8] = bm.as_bytes();
 		match bm.len() {
 			1 => {
-				if self.bianma_1[0] != 0 {
+				if self.bm1[0] != 0 {
 					eprintln!("警告：词组已存在一级编码：{} => {}",
-						self.word, char::from_u32(self.bianma_1[0] as u32).unwrap());
+						self.word, char::from_u32(self.bm1[0] as u32).unwrap());
 				}
-				self.bianma_1[0] = bmc[0];
+				self.bm1[0] = bmc[0];
 			},
 			2 => {
-				if self.bianma_2[0] != 0 {
+				if self.bm2[0] != 0 {
 					eprintln!("警告：词组已存在二级编码：{} => {}",
-						self.word, std::str::from_utf8(&self.bianma_2).unwrap());
+						self.word, std::str::from_utf8(&self.bm2).unwrap());
 				}
 				// TODO: use slice copy method
-				self.bianma_2[0] = bmc[0];
-				self.bianma_2[1] = bmc[1];
+				self.bm2[0] = bmc[0];
+				self.bm2[1] = bmc[1];
 			},
 			3 => {
-				if self.bianma_3[0] != 0 {
+				if self.bm3[0] != 0 {
 					eprintln!("警告：词组已存在三级编码：{} => {}",
-						self.word, std::str::from_utf8(&self.bianma_3).unwrap());
+						self.word, std::str::from_utf8(&self.bm3).unwrap());
 				}
-				self.bianma_3[0] = bmc[0];
-				self.bianma_3[1] = bmc[1];
-				self.bianma_3[2] = bmc[2];
+				self.bm3[0] = bmc[0];
+				self.bm3[1] = bmc[1];
+				self.bm3[2] = bmc[2];
 			},
 			4 => {
-				if self.bianma_4[0] != 0 {
+				if self.bm4[0] != 0 {
 					eprintln!("警告：词组已存在终级编码：{} => {}",
-						self.word, std::str::from_utf8(&self.bianma_4).unwrap());
+						self.word, std::str::from_utf8(&self.bm4).unwrap());
 				}
-				self.bianma_4[0] = bmc[0];
-				self.bianma_4[1] = bmc[1];
-				self.bianma_4[2] = bmc[2];
-				self.bianma_4[3] = bmc[3];
+				self.bm4[0] = bmc[0];
+				self.bm4[1] = bmc[1];
+				self.bm4[2] = bmc[2];
+				self.bm4[3] = bmc[3];
 			},
 			_ => {
 				eprintln!("错误！不能为词组更新五笔编码： {} => {}",
