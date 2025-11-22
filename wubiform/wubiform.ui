@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>wbForm</class>
+ <widget class="QDialog" name="wbForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>360</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">新世纪五笔编码查询</string>
+  </property>
+  <widget class="QTextEdit" name="text_result">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>15</y>
+     <width>300</width>
+     <height>128</height>
+    </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="lineWrapMode">
+    <enum>QTextEdit::NoWrap</enum>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="acceptRichText">
+    <bool>false</bool>
+   </property>
+   <property name="cursorWidth">
+    <number>2</number>
+   </property>
+   <property name="textInteractionFlags">
+    <set>Qt::TextSelectableByMouse</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="text_input">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>180</y>
+     <width>240</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="maxLength">
+    <number>32</number>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>220</y>
+     <width>340</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QPushButton" name="button_load">
+      <property name="text">
+       <string>加载</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="button_store">
+      <property name="text">
+       <string>保存</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="button_query">
+      <property name="text">
+       <string>查询</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QCheckBox" name="recall_mode">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>150</y>
+     <width>100</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>回忆模式</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>text_input</sender>
+   <signal>returnPressed()</signal>
+   <receiver>wbForm</receiver>
+   <slot>text_arrived()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>160</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>102</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_load</sender>
+   <signal>clicked()</signal>
+   <receiver>wbForm</receiver>
+   <slot>clicked_load()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_store</sender>
+   <signal>clicked()</signal>
+   <receiver>wbForm</receiver>
+   <slot>clicked_store()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recall_mode</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>wbForm</receiver>
+   <slot>checked_recall(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>179</x>
+     <y>162</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_query</sender>
+   <signal>clicked()</signal>
+   <receiver>wbForm</receiver>
+   <slot>text_arrived()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>222</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>text_arrived()</slot>
+ </slots>
+</ui>

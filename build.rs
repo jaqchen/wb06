@@ -215,4 +215,14 @@ fn main() {
 
 	wbfile.write_all("};\n".as_bytes()).unwrap();
 	wbfile.sync_all().unwrap();
+	drop(wbfile); // 关闭输出文件
+
+	// 链接选项:
+	let topdir = std::env::current_dir().unwrap();
+	println!("cargo::rustc-link-search={}/wubiform",
+		topdir.to_str().unwrap());
+	println!("cargo::rustc-link-lib=wubiform");
+	println!("cargo::rustc-link-lib=Qt5Widgets");
+	println!("cargo::rustc-link-lib=Qt5Core");
+	println!("cargo::rustc-link-lib=stdc++");
 }
