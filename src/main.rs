@@ -71,6 +71,23 @@ impl Wubihist {
 		Some(idx)
 	}
 
+	fn prev(&mut self, s: &mut String) -> Option<usize> {
+		let wlen = self.wbhist.len();
+		if wlen == 0 {
+			return None;
+		}
+
+		let mut idx = self.wbidx;
+		if idx == 0 || idx >= wlen {
+			idx = wlen - 1;
+		} else {
+			idx = idx - 1;
+		}
+		self.wbidx = idx;
+		s.push_str(self.wbhist[idx].as_str());
+		Some(idx)
+	}
+
 	fn next(&mut self, s: &mut String) -> Option<usize> {
 		let wlen = self.wbhist.len();
 		if wlen == 0 {
@@ -173,6 +190,42 @@ lazy_static! {
 	};
 }
 
+extern "C" fn hprev_wubima(form: WubiForm,
+	_utf8p: *const c_char, _utf8l: c_uint) -> c_int {
+	if let Ok(mut history) = WUBI_HIST.write() {
+		let mut word = String::with_capacity(256);
+		if let Some(_idx) = history.prev(&mut word) {
+			let wbm = WUBIMA_TABLE.get(&word).unwrap();
+			let msg = wbm.dump(&word);
+			unsafe { wform_push_result(form, msg.as_bytes().as_ptr() as *const c_char, msg.len() as c_uint) }
+		} else {
+			let msg: &str = "错误！当前历史记录为空！";
+			unsafe { wform_push_result(form, msg.as_bytes().as_ptr() as *const c_char, msg.len() as c_uint) }
+		}
+	} else {
+		let msg: &str = "错误！对历史记录加锁失败！";
+		unsafe { wform_push_result(form, msg.as_bytes().as_ptr() as *const c_char, msg.len() as c_uint) }
+	}
+}
+
+extern "C" fn hnext_wubima(form: WubiForm,
+	_utf8p: *const c_char, _utf8l: c_uint) -> c_int {
+	if let Ok(mut history) = WUBI_HIST.write() {
+		let mut word = String::with_capacity(256);
+		if let Some(_idx) = history.next(&mut word) {
+			let wbm = WUBIMA_TABLE.get(&word).unwrap();
+			let msg = wbm.dump(&word);
+			unsafe { wform_push_result(form, msg.as_bytes().as_ptr() as *const c_char, msg.len() as c_uint) }
+		} else {
+			let msg: &str = "错误！当前历史记录为空！";
+			unsafe { wform_push_result(form, msg.as_bytes().as_ptr() as *const c_char, msg.len() as c_uint) }
+		}
+	} else {
+		let msg: &str = "错误！对历史记录加锁失败！";
+		unsafe { wform_push_result(form, msg.as_bytes().as_ptr() as *const c_char, msg.len() as c_uint) }
+	}
+}
+
 extern "C" fn query_wubima(form: WubiForm,
 	utf8p: *const c_char, utf8l: c_uint) -> c_int {
 	let utf8d: &[u8] = unsafe { std::slice::from_raw_parts(utf8p as *const u8, utf8l as usize) };
@@ -252,10 +305,12 @@ extern "C" fn next_wubima(form: WubiForm,
 fn main() {
 	let ret = unsafe {
 		let form = wform_init_lib();
-		wform_regiter_fun(form, WFB_QUERY, Some(query_wubima));
-		wform_regiter_fun(form, WFB_LOAD, Some(load_wubima));
-		wform_regiter_fun(form, WFB_STORE, Some(store_wubima));
-		wform_regiter_fun(form, WFB_NEXT, Some(next_wubima));
+		wform_regiter_fun(form, WFB_QUERY,   Some(query_wubima));
+		wform_regiter_fun(form, WFB_LOAD,    Some(load_wubima));
+		wform_regiter_fun(form, WFB_STORE,   Some(store_wubima));
+		wform_regiter_fun(form, WFB_RECALL,  Some(next_wubima));
+		wform_regiter_fun(form, WFB_HPREV,   Some(hprev_wubima));
+		wform_regiter_fun(form, WFB_HNEXT,   Some(hnext_wubima));
 		wform_looping(form)
 	};
 	std::process::exit(ret as i32);

@@ -15,7 +15,9 @@ wbDialog::wbDialog(QWidget * parent)
 	cbquery  = nullptr;
 	cbload   = nullptr;
 	cbstore  = nullptr;
-	cbnext   = nullptr;
+	cbrecall = nullptr;
+	cb_hprev = nullptr;
+	cb_hnext = nullptr;
 	recall   = false;
 
 	// 初始化窗口：
@@ -34,7 +36,9 @@ wbDialog::~wbDialog()
 	cbquery  = nullptr;
 	cbload   = nullptr;
 	cbstore  = nullptr;
-	cbnext   = nullptr;
+	cbrecall = nullptr;
+	cb_hprev = nullptr;
+	cb_hnext = nullptr;
 	recall   = false;
 }
 
@@ -43,6 +47,21 @@ void wbDialog::checked_recall(int cst)
 	recall = (cst != Qt::Unchecked);
 	if (cst != ui->recall_mode->checkState())
 		ui->recall_mode->setCheckState(cst ? Qt::Checked : Qt::Unchecked);
+	if (recall) {
+		WformButtonCb cb;
+		ui->button_next->setEnabled(false);
+		ui->button_prev->setEnabled(false);
+
+		cb = (WformButtonCb) cbrecall;
+		if (cb != nullptr) {
+			const char * bytp = "开始查询";
+			unsigned int bytl = (unsigned int) strlen(bytp);
+			cb(this, bytp, bytl);
+		}
+	} else {
+		ui->button_next->setEnabled(true);
+		ui->button_prev->setEnabled(true);
+	}
 }
 
 void wbDialog::clicked_load()
@@ -83,6 +102,24 @@ void wbDialog::clicked_store()
 		cb(this, bytp, bytl);
 }
 
+void wbDialog::clicked_next()
+{
+	WformButtonCb cb;
+	cb = (WformButtonCb) cb_hnext;
+	if (cb == nullptr)
+		return;
+	cb(this, nullptr, 0);
+}
+
+void wbDialog::clicked_prev()
+{
+	WformButtonCb cb;
+	cb = (WformButtonCb) cb_hprev;
+	if (cb == nullptr)
+		return;
+	cb(this, nullptr, 0);
+}
+
 void wbDialog::update_result(const char * res, unsigned int len)
 {
 	if (res == nullptr || len == 0) {
@@ -106,8 +143,14 @@ int wbDialog::update_cbfunc(int which, void * cbfunc)
 	case WFB_STORE:
 		this->cbstore  = cbfunc;
 		break;
-	case WFB_NEXT:
-		this->cbnext   = cbfunc;
+	case WFB_RECALL:
+		this->cbrecall = cbfunc;
+		break;
+	case WFB_HPREV:
+		this->cb_hprev = cbfunc;
+		break;
+	case WFB_HNEXT:
+		this->cb_hnext = cbfunc;
 		break;
 	default:
 		ret = -1;
@@ -120,7 +163,7 @@ void wbDialog::text_arrived()
 {
 	WformButtonCb cb;
 	if (recall)
-		cb = (WformButtonCb) cbnext;
+		cb = (WformButtonCb) cbrecall;
 	else
 		cb = (WformButtonCb) cbquery;
 	if (cb == nullptr)

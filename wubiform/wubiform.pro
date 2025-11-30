@@ -11,3 +11,5 @@ SOURCES += wbDialog.cpp
 HEADERS += wubiform.h wbDialog.h
 
 FORMS += wubiform.ui
+
+win32:CMAKE_CXXFLAGS += /source-charset:utf-8 /execution-charset:gb2312

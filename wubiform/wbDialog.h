@@ -22,13 +22,17 @@ public slots:
 	void checked_recall(int changed);
 	void clicked_load();
 	void clicked_store();
+	void clicked_next();
+	void clicked_prev();
 
 private:
 	Ui::wbForm * ui;
 	void * cbquery;
 	void * cbload;
 	void * cbstore;
-	void * cbnext;
+	void * cbrecall;
+	void * cb_hprev;
+	void * cb_hnext;
 	bool recall;
 };
 #endif

@@ -3,7 +3,9 @@
 pub const WFB_QUERY:  i32 = 0;
 pub const WFB_LOAD:   i32 = 1;
 pub const WFB_STORE:  i32 = 2;
-pub const WFB_NEXT:   i32 = 3;
+pub const WFB_RECALL: i32 = 3;
+pub const WFB_HPREV:  i32 = 4;
+pub const WFB_HNEXT:  i32 = 5;
 pub type WubiForm = *mut c_void;
 pub type WformButtonCb = std::option::Option<
 	unsafe extern "C" fn(form: WubiForm, utf8p: *const c_char, utf8l: c_uint) -> c_int,
