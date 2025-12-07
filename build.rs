@@ -224,19 +224,12 @@ fn main() {
 	println!("cargo::rustc-link-lib=wubiform");
 
 	#[cfg(target_os = "windows")]
-	{
-		println!("cargo:rerun-if-changed=wubiform/wubiform.lib");
-		println!("cargo::rustc-link-arg=/SUBSYSTEM:WINDOWS");
-		println!("cargo::rustc-link-arg=/ENTRY:mainCRTStartup");
-		println!("cargo::rustc-link-search=D:/Qt/5.15.2/msvc2019_64/lib");
-	}
+	println!("cargo::rustc-link-search=D:/Qt/5.15.2/mingw81_64/lib");
 
 	println!("cargo::rustc-link-lib=Qt5Widgets");
 	println!("cargo::rustc-link-lib=Qt5Core");
 
 	#[cfg(target_os = "linux")]
-	{
-		println!("cargo:rerun-if-changed=wubiform/libwubiform.a");
-		println!("cargo::rustc-link-lib=stdc++");
-	}
+	println!("cargo::rustc-link-lib=stdc++");
+	println!("cargo:rerun-if-changed=wubiform/libwubiform.a");
 }
