@@ -110,6 +110,7 @@ fn main() {
 	// 生成五笔码表代码文件的两个依赖：
 	println!("cargo:rerun-if-changed=build.rs");
 	println!("cargo:rerun-if-changed=新世纪五笔词库");
+	println!("cargo:rerun-if-changed=wubiform/libwubiform.a");
 
 	// 获得编译输出文件夹：
 	let outdir: String = match std::env::var("OUT_DIR") {
@@ -222,14 +223,13 @@ fn main() {
 	println!("cargo::rustc-link-search={}/wubiform",
 		topdir.to_str().unwrap());
 	println!("cargo::rustc-link-lib=wubiform");
-
 	#[cfg(target_os = "windows")]
-	println!("cargo::rustc-link-search=D:/Qt/5.15.2/mingw81_64/lib");
+	{
+		println!("cargo::rustc-link-arg=-Wl,-subsystem,windows");
+		println!("cargo::rustc-link-search=D:/Qt/5.15.2/mingw81_64/bin");
+	}
 
 	println!("cargo::rustc-link-lib=Qt5Widgets");
 	println!("cargo::rustc-link-lib=Qt5Core");
-
-	#[cfg(target_os = "linux")]
 	println!("cargo::rustc-link-lib=stdc++");
-	println!("cargo:rerun-if-changed=wubiform/libwubiform.a");
 }
